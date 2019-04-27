@@ -67,7 +67,7 @@ void runcmd(struct cmd *cmd)
   case ' ':
     ecmd = (struct execcmd *)cmd;
     if (ecmd->argv[0] == 0)
-      exit(0);
+      exit(EXIT_SUCCESS);
     if (execvp(ecmd->argv[0], ecmd->argv) < 0)
       fprintf(stderr, "Error in execvp\n");
     break;
@@ -82,7 +82,7 @@ void runcmd(struct cmd *cmd)
     if (fileDesc < 0)
     {
       fprintf(stderr, "File opening error\n");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     runcmd(rcmd->cmd);
@@ -111,7 +111,7 @@ void runcmd(struct cmd *cmd)
     wait(&r);
     break;
   }
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 int getcmd(char *buf, int nbuf)

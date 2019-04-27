@@ -16,7 +16,7 @@ int main(void)
   if (fileDesc == -1)
   {
     fprintf(stderr, "Error while opening file y\n");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   dup2(fileDesc, 1);
@@ -24,5 +24,5 @@ int main(void)
   char *args[] = {"ls", NULL};
   execv("/bin/ls", args);
 
-  exit(0);
+  exit(EXIT_SUCCESS);
 }

@@ -27,7 +27,7 @@ int main(void)
       dup2(pipe_1_fds[1], 1);
       close(pipe_1_fds[0]);
       execl("/bin/ls", "ls", NULL);
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
 
     dup2(pipe_1_fds[0], 0);
@@ -35,14 +35,14 @@ int main(void)
     dup2(pipe_2_fds[1], 1);
     execl("/bin/grep", "grep", "main", NULL);
 
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
   else
   {
     dup2(pipe_2_fds[0], 0);
     close(pipe_2_fds[1]);
     execlp("/usr/bin/wc", "wc", NULL);
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
-  exit(0);
+  exit(EXIT_SUCCESS);
 }

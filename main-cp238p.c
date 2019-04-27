@@ -23,14 +23,14 @@ int main(int argc, char *argv[])
     if (srcFileDesc == -1)
     {
       fprintf(stderr, "Error while opening source file\n");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     int destFileDesc = open(dest, O_RDWR | O_CREAT | O_TRUNC, 0777);
     if (destFileDesc == -1)
     {
       fprintf(stderr, "Error while opening target file\n");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     char *fileBuf = malloc(FILE_SIZE * sizeof(char));
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
       if (write(destFileDesc, fileBuf, readFileSize) < 0)
       {
         fprintf(stderr, "Error in writing copied file\n");
-        exit(1);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -55,5 +55,5 @@ int main(int argc, char *argv[])
   {
     return 1;
   }
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
