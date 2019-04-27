@@ -31,7 +31,7 @@ struct redircmd
   struct cmd *cmd; // the command to be run (e.g., an execcmd)
   char *file;      // the input/output file
   int mode;        // the mode to open the file with
-  int fd;          // the file descriptor number to use for the file
+  int fileDesc;    // the file descriptor number to use for the file
 };
 
 struct pipecmd
@@ -51,8 +51,8 @@ void runcmd(struct cmd *cmd)
   struct execcmd *ecmd;
   struct pipecmd *pcmd;
   struct redircmd *rcmd;
-  int dup_fd, fd;
-  pid_t pid;
+  int fileDesc;
+  int fileDesc_copy;
 
   if (cmd == 0)
     exit(0);
@@ -73,28 +73,26 @@ void runcmd(struct cmd *cmd)
   case '>':
   case '<':
     rcmd = (struct redircmd *)cmd;
-    dup_fd = dup(rcmd->fd);
+    fileDesc_copy = dup(rcmd->fileDesc);
+    close(rcmd->fileDesc);
 
-    close(rcmd->fd);
-
-    fd = open(rcmd->file, rcmd->mode, 0777); /* Open will always return least unused file descriptor */
-    if (fd < 0)
+    fileDesc = open(rcmd->file, rcmd->mode, 0777);
+    if (fileDesc < 0)
     {
       fprintf(stderr, "Error opening file\n");
       exit(1);
     }
-    runcmd(rcmd->cmd);
 
-    close(fd);              /* closing the file */
-    dup2(dup_fd, rcmd->fd); /* Restoring stdout/stdin */
-    close(dup_fd);
+    runcmd(rcmd->cmd);
+    close(fileDesc);
+    dup2(fileDesc_copy, rcmd->fileDesc);
+    close(fileDesc_copy);
     break;
 
   case '|':
     pcmd = (struct pipecmd *)cmd;
     pipe(p);
-    pid = fork();
-    if (pid == 0)
+    if (fork() == 0)
     {
       dup2(p[1], 1);
       close(p[0]);
@@ -129,7 +127,7 @@ int getcmd(char *buf, int nbuf)
 int main(void)
 {
   static char buf[100];
-  int fd, r;
+  int fileDesc, r;
 
   // Read and run input commands.
   while (getcmd(buf, sizeof(buf)) >= 0)
@@ -152,12 +150,12 @@ int main(void)
 
 int fork1(void)
 {
-  int pid;
+  int child_pid;
 
-  pid = fork();
-  if (pid == -1)
+  child_pid = fork();
+  if (child_pid == -1)
     perror("fork");
-  return pid;
+  return child_pid;
 }
 
 struct cmd *
@@ -182,7 +180,7 @@ redircmd(struct cmd *subcmd, char *file, int type)
   cmd->cmd = subcmd;
   cmd->file = file;
   cmd->mode = (type == '<') ? O_RDONLY : O_WRONLY | O_CREAT | O_TRUNC;
-  cmd->fd = (type == '<') ? 0 : 1;
+  cmd->fileDesc = (type == '<') ? 0 : 1;
   return (struct cmd *)cmd;
 }
 
