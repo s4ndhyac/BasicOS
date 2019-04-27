@@ -15,6 +15,10 @@ int main(void)
   int pipe_1_fds[2];
   int pipe_2_fds[2];
 
+  char *ls_args[] = {"ls", NULL};
+  char *grep_args[] = {"grep", "main", NULL};
+  char *wc_args[] = {"wc", NULL};
+
   if (pipe(pipe_2_fds) < 0)
     fprintf(stderr, "Error in pipe 2 system call\n");
 
@@ -26,14 +30,14 @@ int main(void)
     {
       dup2(pipe_1_fds[1], 1);
       close(pipe_1_fds[0]);
-      execl("/bin/ls", "ls", NULL);
+      execv("/bin/ls", ls_args);
       exit(EXIT_SUCCESS);
     }
 
     dup2(pipe_1_fds[0], 0);
     close(pipe_1_fds[1]);
     dup2(pipe_2_fds[1], 1);
-    execl("/bin/grep", "grep", "main", NULL);
+    execv("/bin/grep", grep_args);
 
     exit(EXIT_SUCCESS);
   }
@@ -41,7 +45,7 @@ int main(void)
   {
     dup2(pipe_2_fds[0], 0);
     close(pipe_2_fds[1]);
-    execlp("/usr/bin/wc", "wc", NULL);
+    execv("/usr/bin/wc", wc_args);
     exit(EXIT_SUCCESS);
   }
   exit(EXIT_SUCCESS);
