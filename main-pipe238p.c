@@ -10,8 +10,6 @@
 
 int main(void)
 {
-  pid_t child_1;
-  pid_t child_2;
   int pipe_1_fds[2];
   int pipe_2_fds[2];
 
