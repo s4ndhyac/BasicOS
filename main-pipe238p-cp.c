@@ -18,11 +18,10 @@ int main(void)
   if (pipe(pipe_2_fds) < 0)
     fprintf(stderr, "Error in pipe_1_fds system call\n");
 
-  if (pipe(pipe_1_fds) < 0)
-    fprintf(stderr, "Error in pipe_2_fds system call\n");
-
   if (fork() == 0)
   {
+    if (pipe(pipe_1_fds) < 0)
+      fprintf(stderr, "Error in pipe_2_fds system call\n");
     if (fork() == 0)
     {
       dup2(pipe_1_fds[1], 1);
