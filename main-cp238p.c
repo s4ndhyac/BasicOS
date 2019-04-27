@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-const int FILE_SIZE = 50;
+#define FILE_SIZE 50
 
 int main(int argc, char *argv[])
 {
