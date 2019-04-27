@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
+// Tested on Andromeda-66 GCC version: 4.8.5
+
 int main(void)
 {
   int fileDesc = open("y", O_CREAT | O_RDWR | O_TRUNC, 0777);

@@ -10,6 +10,8 @@
 
 #define FILE_SIZE 50
 
+// Tested on Andromeda-66 GCC version: 4.8.5
+
 int main(int argc, char *argv[])
 {
   if (argc == 3)

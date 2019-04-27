@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
+// Tested on Andromeda-66 GCC version: 4.8.5
 // Simplifed xv6 shell.
 
 #define MAXARGS 10
