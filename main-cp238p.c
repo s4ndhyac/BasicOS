@@ -8,44 +8,46 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-const int READ_SIZE = 40;
-void copyFiles(char *sourceFile, char *destFile)
-{
-  int sourcefd = open(sourceFile, O_RDONLY);
-  if (sourcefd == -1)
-  {
-    perror("Error in opening source");
-    exit(1);
-  }
-  int targetfd = open(destFile, O_RDWR | O_CREAT | O_TRUNC, 0777);
-  if (targetfd == -1)
-  {
-    perror("Error in opening target");
-    exit(1);
-  }
-  char *buf = malloc(READ_SIZE * sizeof(char));
-  int sizeRead;
-  while (1)
-  {
-    sizeRead = read(sourcefd, buf, READ_SIZE);
-    if (sizeRead < 1)
-      break;
-    if (write(targetfd, buf, sizeRead) < 0)
-    {
-      perror("write error\n");
-      exit(1);
-    }
-  }
-  close(sourcefd);
-  close(targetfd);
-  return;
-}
+const int FILE_SIZE = 50;
 
 int main(int argc, char *argv[])
 {
   if (argc == 3)
   {
-    copyFiles(argv[1], argv[2]);
+    char *src = argv[1];
+    char *dest = argv[2];
+
+    int srcFileDesc = open(src, O_RDONLY);
+    if (srcFileDesc == -1)
+    {
+      fprintf(stderr, "Error while opening source file\n");
+      exit(1);
+    }
+
+    int destFileDesc = open(dest, O_RDWR | O_CREAT | O_TRUNC, 0777);
+    if (destFileDesc == -1)
+    {
+      fprintf(stderr, "Error while opening target file\n");
+      exit(1);
+    }
+
+    char *fileBuf = malloc(FILE_SIZE * sizeof(char));
+    int readFileSize;
+    while (1)
+    {
+      readFileSize = read(srcFileDesc, fileBuf, FILE_SIZE);
+      if (readFileSize < 1)
+        break;
+
+      if (write(destFileDesc, fileBuf, readFileSize) < 0)
+      {
+        fprintf(stderr, "Error in writing copied file\n");
+        exit(1);
+      }
+    }
+
+    close(srcFileDesc);
+    close(destFileDesc);
   }
   else
   {

@@ -10,16 +10,17 @@
 
 int main(void)
 {
-  int ydesc = open("y", O_RDWR | O_CREAT | O_TRUNC, 0777);
-  if (ydesc == -1)
+  int fileDesc = open("y", O_CREAT | O_RDWR | O_TRUNC, 0777);
+  if (fileDesc == -1)
   {
-    perror("Error in opening y file");
+    fprintf(stderr, "Error while opening file y\n");
     exit(1);
   }
-  dup2(ydesc, 1);
-  char *loc[2];
-  loc[0] = "ls";
-  loc[1] = NULL;
-  execv("/bin/ls", loc);
+
+  dup2(fileDesc, 1);
+
+  char *args[] = {"ls", NULL};
+  execv("/bin/ls", args);
+
   exit(0);
 }
