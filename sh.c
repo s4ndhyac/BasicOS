@@ -67,7 +67,8 @@ void runcmd(struct cmd *cmd)
     ecmd = (struct execcmd *)cmd;
     if (ecmd->argv[0] == 0)
       exit(0);
-    execvp(ecmd->argv[0], ecmd->argv);
+    if (execvp(ecmd->argv[0], ecmd->argv) < 0)
+      fprintf(stderr, "Error in execvp\n");
     break;
 
   case '>':
@@ -79,7 +80,7 @@ void runcmd(struct cmd *cmd)
     fileDesc = open(rcmd->file, rcmd->mode, 0777);
     if (fileDesc < 0)
     {
-      fprintf(stderr, "Error opening file\n");
+      fprintf(stderr, "File opening error\n");
       exit(1);
     }
 
