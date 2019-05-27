@@ -86,8 +86,10 @@ int sys_uptime(void)
 
 int sys_memtop(void)
 {
+  return 1;
 }
 
 int sys_getmeminfo(void)
 {
+  return 2;
 }
