@@ -542,9 +542,3 @@ void procdump(void)
     cprintf("\n");
   }
 }
-
-int freePgCount(void)
-{
-  int count = kcount();
-  return count;
-}

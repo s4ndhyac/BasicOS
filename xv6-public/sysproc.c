@@ -86,7 +86,7 @@ int sys_uptime(void)
 
 int sys_memtop(void)
 {
-  return freePgCount();
+  return kcount();
 }
 
 int sys_getmeminfo(void)
