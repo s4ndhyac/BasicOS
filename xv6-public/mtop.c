@@ -8,13 +8,11 @@ int main(int argc, char *argv[])
 {
   /* Syscall invocation here */
   printf(1, "Available memory: %d \n", memtop());
-  if (fork() == 0)
-  {
-    printf(1, "Child PID: %d \n", getpid());
-  }
-  else
+  int pid = fork();
+  if (pid != 0)
   {
     printf(1, "Parent PID: %d \n", getpid());
+    printf(1, "Child PID: %d \n", pid);
   }
 
   char *buf = malloc(BUFFER_SIZE * sizeof(char));
