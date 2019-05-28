@@ -9,7 +9,9 @@ int main(int argc, char *argv[])
   /* Syscall invocation here */
   printf(1, "Available memory: %d \n", memtop());
   int pid = fork();
-  if (pid != 0)
+  if (pid == 0)
+    exit();
+  else
     wait();
 
   printf(1, "Current PID: %d \n", pid);
