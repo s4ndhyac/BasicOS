@@ -14,6 +14,10 @@ int main(int argc, char *argv[])
     printf(1, "Parent PID: %d \n", getpid());
     printf(1, "Child PID: %d \n", pid);
   }
+  else
+  {
+    exit();
+  }
 
   char *buf = malloc(BUFFER_SIZE * sizeof(char));
   printf(1, "Available memory: %d \n", getmeminfo(1, buf, 50));
