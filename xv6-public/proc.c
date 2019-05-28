@@ -545,7 +545,14 @@ void procdump(void)
 
 int getmeminfo(int pid, char *name, int len)
 {
-  struct proc *p = myproc();
-  memmove(name, p->name, len);
-  return p->sz;
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+    {
+      memmove(name, p->name, len);
+      return p->sz;
+    }
+  }
+  return -1;
 }
