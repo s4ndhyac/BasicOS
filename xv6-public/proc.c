@@ -542,3 +542,9 @@ void procdump(void)
     cprintf("\n");
   }
 }
+
+int getmeminfo(int pid, char *name, int len)
+{
+
+  return 1;
+}

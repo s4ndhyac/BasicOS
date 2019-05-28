@@ -86,11 +86,15 @@ int sys_uptime(void)
 
 int sys_memtop(void)
 {
-  int freemem = kcount() * 4096;
+  int freemem = kcount() * PGSIZE;
   return freemem;
 }
 
 int sys_getmeminfo(void)
 {
-  return 2;
+  int pid, size;
+  char *name;
+  if (argint(0, &pid) < 0 || argstr(1, &name) < 0 || argint(2, &size) < 0)
+    return -1;
+  return getmeminfo(pid, name, size);
 }

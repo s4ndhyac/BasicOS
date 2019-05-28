@@ -2,7 +2,7 @@
 #include "stat.h"
 #include "user.h"
 
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE 16
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   {
     memset(buf, 0, BUFFER_SIZE);
     int mem = getmeminfo(pid, buf, BUFFER_SIZE);
-    printf(1, "pid: %d, name: %s, mem: %d \n", pid, buf, mem);
+    printf(1, "pid: %d, name: %s, mem: %d \n", i, buf, mem);
   }
 
   free(buf);
