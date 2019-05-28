@@ -545,6 +545,7 @@ void procdump(void)
 
 int getmeminfo(int pid, char *name, int len)
 {
-
-  return 1;
+  struct proc *p = myproc();
+  memmove(name, p->name, len);
+  return p->sz;
 }
