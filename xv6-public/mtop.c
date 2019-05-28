@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
   /* Syscall invocation here */
-  printf(1, "Available memory: %d \n", memtop());
+  printf(1, "available memory: %d \n", memtop());
   int pid = fork();
   if (pid == 0)
     exit();
@@ -15,8 +15,15 @@ int main(int argc, char *argv[])
     wait();
 
   printf(1, "Current PID: %d \n", pid);
+  int i;
   char *buf = malloc(BUFFER_SIZE * sizeof(char));
-  printf(1, "Available memory: %d \n", getmeminfo(1, buf, 50));
+  for (i = 1; i <= pid; i++)
+  {
+    memset(buf, 0, BUFFER_SIZE);
+    int mem = getmeminfo(pid, buf, BUFFER_SIZE);
+    printf(1, "pid: %d, name: %s, mem: %d \n", pid, buf, mem);
+  }
+
   free(buf);
   exit();
 }
