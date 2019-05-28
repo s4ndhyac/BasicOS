@@ -86,7 +86,8 @@ int sys_uptime(void)
 
 int sys_memtop(void)
 {
-  return kcount();
+  int freemem = kcount() * 4096;
+  return freemem;
 }
 
 int sys_getmeminfo(void)
