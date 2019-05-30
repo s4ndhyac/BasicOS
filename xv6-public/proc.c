@@ -597,12 +597,12 @@ int getmeminfo(int pid, char *name, int len)
           }
         }
         /* If j is equal to size, it means we traversed whole 
-  array and didn't found a duplicate of array[i] */
+          array and didn't found a duplicate of array[i] */
         if (j == c)
           leafPages += 1;
       }
 
-     // mem += (leafPages * PGSIZE);
+      mem += (leafPages * PGSIZE);
       //mem += (PGROUNDUP(p->sz));
     }
   }
