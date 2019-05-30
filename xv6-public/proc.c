@@ -557,34 +557,17 @@ int getmeminfo(int pid, char *name, int len)
       // user memory of the process (text, data, guard, stack)
       mem += PGROUNDUP(p->sz);
 
-      // kernel stack page
+      // kernel stack page kstack
       mem += PGSIZE;
 
-      // page table root page i.e page directory
+      // page table root page i.e page directory pgdir
       mem += PGSIZE;
 
       // N leaf pages i.e page table pages
       int leafPages = 0;
-      int i;
-      for (i = 0; i < p->sz; i += PGSIZE)
-      {
-        char *a, *last;
-        a = (char *)PGROUNDDOWN(i);
-        last = (char *)PGROUNDDOWN((i) + PGSIZE - 1);
-        for (;;)
-        {
-          pde_t *pde;
-          pde = &p->pgdir[PDX(a)];
-          if (*pde & PTE_P)
-            leafPages += 1;
-
-          if (a == last)
-            break;
-          a += PGSIZE;
-        }
-      }
-      //mem += (leafPages * PGSIZE);
-      mem += (PGROUNDUP(p->sz));
+      leafPages += countkvm(p->pgdir);
+      leafPages += countuvm(p->pgdir, p->sz);
+      mem += (leafPages * PGSIZE);
     }
   }
   return mem;
