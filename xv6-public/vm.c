@@ -59,14 +59,15 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
 static int countpages(pde_t *pgdir, void *va, uint size, int perm, int no_perm)
 {
   char *a, *last;
+  pte_t *pte;
   int pages = 0;
   a = (char *)PGROUNDDOWN((uint)va);
   last = (char *)PGROUNDDOWN(((uint)va) + size - 1);
   for (;;)
   {
-    pde_t *pde;
-    pde = &pgdir[PDX(a)];
-    if (FLAG_SET(*pde, PTE_P) && FLAG_SET(*pde, perm) && !FLAG_SET(*pde, no_perm))
+    if ((pte = walkpgdir(pgdir, a, 0)) == 0)
+      return -1;
+    if (FLAG_SET(*pte, PTE_P) && FLAG_SET(*pte, perm) && !FLAG_SET(*pte, no_perm))
       pages += 1;
     if (a == last)
       break;
