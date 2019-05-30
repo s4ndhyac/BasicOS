@@ -416,7 +416,7 @@ int countkvm(pde_t *pgdir)
   int pages = 0;
   struct kmap *k;
   for (k = kmap; k < &kmap[NELEM(kmap)]; k++)
-    pages += countpages(pgdir, k->virt, k->phys_end - k->phys_start, 0, PTE_U);
+    pages += countpages(pgdir, k->virt, k->phys_end - k->phys_start, PTE_P, PTE_U);
   return pages;
 }
 
