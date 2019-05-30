@@ -578,7 +578,7 @@ int getmeminfo(int pid, char *name, int len)
           pde_t *pde;
           pde = &p->pgdir[PDX(a)];
           if (*pde & PTE_P)
-            lPages[c++] = pde;
+            lPages[c++] = *pde;
 
           if (a == last)
             break;
@@ -602,7 +602,7 @@ int getmeminfo(int pid, char *name, int len)
           leafPages += 1;
       }
 
-      mem += (leafPages * PGSIZE);
+     // mem += (leafPages * PGSIZE);
       //mem += (PGROUNDUP(p->sz));
     }
   }
