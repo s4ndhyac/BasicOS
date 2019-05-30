@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
   {
     memset(buf, 0, BUFFER_SIZE);
     int mem = getmeminfo(i, buf, BUFFER_SIZE);
-    printf(1, "pid: %d, name: %s, mem: %d \n", i, buf, mem);
+    if (mem > -1)
+      printf(1, "pid: %d, name: %s, mem: %d \n", i, buf, mem);
   }
 
   free(buf);
