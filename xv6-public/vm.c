@@ -56,12 +56,12 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
   return &pgtab[PTX(va)];
 }
 
-static int countpages(pde_t *pgdir, uint va, uint size, int perm, int no_perm)
+static int countpages(pde_t *pgdir, void *va, uint size, int perm, int no_perm)
 {
   char *a, *last;
   int pages = 0;
-  a = (char *)PGROUNDDOWN(va);
-  last = (char *)PGROUNDDOWN((va) + size - 1);
+  a = (char *)PGROUNDDOWN((uint)va);
+  last = (char *)PGROUNDDOWN(((uint)va) + size - 1);
   for (;;)
   {
     pde_t *pde;
@@ -426,6 +426,6 @@ int countuvm(pde_t *pgdir, uint sz)
   int pages = 0;
   int i;
   for (i = 0; i < sz; i += PGSIZE)
-    pages += countpages(pgdir, i, PGSIZE, PTE_U, 0);
+    pages += countpages(pgdir, (void *)i, PGSIZE, PTE_U, 0);
   return pages;
 }
