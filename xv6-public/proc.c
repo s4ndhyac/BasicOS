@@ -564,8 +564,10 @@ int getmeminfo(int pid, char *name, int len)
       mem += PGSIZE;
 
       // N leaf pages i.e page table pages
+      int lPages[20];
       int leafPages = 0;
-      int i;
+      int i, j;
+      int c = 0;
       for (i = 0; i < p->sz; i += PGSIZE)
       {
         char *a, *last;
@@ -576,15 +578,32 @@ int getmeminfo(int pid, char *name, int len)
           pde_t *pde;
           pde = &p->pgdir[PDX(a)];
           if (*pde & PTE_P)
-            leafPages += 1;
+            lPages[c++] = pde;
 
           if (a == last)
             break;
           a += PGSIZE;
         }
       }
-      //mem += (leafPages * PGSIZE);
-      mem += (PGROUNDUP(p->sz));
+
+      for (i = 0; i < c; i++)
+      {
+        for (j = i + 1; j < c; j++)
+        {
+          if (lPages[i] == lPages[j])
+          {
+            /* Duplicate element found */
+            break;
+          }
+        }
+        /* If j is equal to size, it means we traversed whole 
+  array and didn't found a duplicate of array[i] */
+        if (j == c)
+          leafPages += 1;
+      }
+
+      mem += (leafPages * PGSIZE);
+      //mem += (PGROUNDUP(p->sz));
     }
   }
   return mem;
