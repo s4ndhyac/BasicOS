@@ -546,13 +546,45 @@ void procdump(void)
 int getmeminfo(int pid, char *name, int len)
 {
   struct proc *p;
+  int mem = 0;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if (p->pid == pid)
     {
+      // process name
       memmove(name, p->name, len);
-      return p->sz;
+
+      // user memory of the process (text, data, guard, stack)
+      mem += PGROUNDUP(p->sz);
+
+      // kernel stack page
+      mem += PGSIZE;
+
+      // page table root page i.e page directory
+      mem += PGSIZE;
+
+      // N leaf pages i.e page table pages
+      int leafPages = 0;
+      int i;
+      for (i = 0; i < p->sz; i += PGSIZE)
+      {
+        char *a, *last;
+        a = (char *)PGROUNDDOWN(i);
+        last = (char *)PGROUNDDOWN((i) + PGSIZE - 1);
+        for (;;)
+        {
+          pde_t *pde;
+          pde = &p->pgdir[PDX(a)];
+          if (*pde & PTE_P)
+            leafPages += 1;
+
+          if (a == last)
+            break;
+          a += PGSIZE;
+        }
+      }
+      mem += (leafPages * PGSIZE);
     }
   }
-  return -1;
+  return mem;
 }
