@@ -583,7 +583,8 @@ int getmeminfo(int pid, char *name, int len)
           a += PGSIZE;
         }
       }
-      mem += (leafPages * PGSIZE);
+      //mem += (leafPages * PGSIZE);
+      mem += (PGROUNDUP(p->sz));
     }
   }
   return mem;
