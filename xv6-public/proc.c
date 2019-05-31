@@ -574,6 +574,7 @@ int getmeminfo(int pid, char *name, int len)
           leafPages++;
       }
       mem += (leafPages * PGSIZE);
+      break;
     }
   }
   return mem;
