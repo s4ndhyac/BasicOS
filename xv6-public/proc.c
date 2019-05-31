@@ -565,8 +565,18 @@ int getmeminfo(int pid, char *name, int len)
 
       // N leaf pages i.e page table pages
       int leafPages = 0;
-      leafPages += countkvm(p->pgdir);
-      leafPages += countuvm(p->pgdir, p->sz);
+
+      // leafPages += countkvm(p->pgdir);
+      // leafPages += countuvm(p->pgdir, p->sz);
+      int i;
+      pde_t *pde;
+      for (i = 0; i < 1024; i++)
+      {
+        pde = &p->pgdir[i];
+        if (*pde & PTE_P)
+          leafPages++;
+      }
+
       mem += (leafPages * PGSIZE);
     }
   }
