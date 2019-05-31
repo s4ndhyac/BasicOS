@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
   else
     wait();
 
-  printf(1, "Current PID: %d \n", pid);
   int i;
   char *buf = malloc(BUFFER_SIZE * sizeof(char));
   for (i = 1; i <= pid; i++)
