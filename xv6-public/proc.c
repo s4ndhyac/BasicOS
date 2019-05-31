@@ -567,7 +567,7 @@ int getmeminfo(int pid, char *name, int len)
       int leafPages = 0;
       int i;
       pde_t *pde;
-      for (i = 0; i < 1024; i++)
+      for (i = 0; i < NPDENTRIES; i++)
       {
         pde = &p->pgdir[i];
         if (*pde & PTE_P)
