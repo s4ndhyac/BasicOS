@@ -84,7 +84,7 @@ int sys_uptime(void)
   return xticks;
 }
 
-int sys_thread_create(void (*fcn)(void *), void *arg, void *stack)
+int sys_thread_create(void)
 {
   void (*fcn)(void *);
   void *arg;
