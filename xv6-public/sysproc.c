@@ -86,17 +86,22 @@ int sys_uptime(void)
 
 int sys_thread_create(void (*fcn)(void *), void *arg, void *stack)
 {
-  return 1;
+  void (*fcn)(void *);
+  void *arg;
+  void *stack;
+  if (argptr(0, (void *)&fcn, sizeof(void (*)(void *))) < 0 || argptr(1, (void *)&arg, sizeof(void *)) < 0 || argptr(2, (void *)&stack, sizeof(void *)) < 0)
+    return -1;
+  return thread_create(fcn, arg, stack);
 }
 
 int sys_thread_join(void)
 {
-  return 1;
+  return thread_join();
 }
 
 int sys_thread_exit(void)
 {
-  return 1;
+  return thread_exit();
 }
 
 void sys_thread_spin_init(struct thread_spinlock *lk)
