@@ -4,7 +4,7 @@
 #include "thread_lock_impl.h"
 
 struct thread_spinlock lock;
-struct thread_mutexlock ml;
+struct thread_mutex ml;
 
 struct balance
 {

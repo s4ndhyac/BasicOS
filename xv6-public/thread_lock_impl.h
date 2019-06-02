@@ -1,5 +1,5 @@
 #include "thread_spinlock.h"
-#include "thread_mutexlock.h"
+#include "thread_mutex.h"
 #include "thread_util.h"
 
 void thread_spin_init(struct thread_spinlock *lk)
@@ -36,12 +36,12 @@ void thread_spin_unlock(struct thread_spinlock *lk)
                :);
 }
 
-void thread_mutex_init(struct thread_mutexlock *m)
+void thread_mutex_init(struct thread_mutex *m)
 {
   m->locked = 0;
 }
 
-void thread_mutex_lock(struct thread_mutexlock *m)
+void thread_mutex_lock(struct thread_mutex *m)
 {
   // The xchg is atomic.
   while (xchg(&m->locked, 1) != 0)
@@ -53,7 +53,7 @@ void thread_mutex_lock(struct thread_mutexlock *m)
   __sync_synchronize();
 }
 
-void thread_mutex_unlock(struct thread_mutexlock *m)
+void thread_mutex_unlock(struct thread_mutex *m)
 {
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that all the stores in the critical
