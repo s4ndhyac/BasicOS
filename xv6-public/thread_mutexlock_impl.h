@@ -1,5 +1,5 @@
 #include "thread_mutexlock.h"
-#include "x86.h"
+#include "thread_util.h"
 
 void thread_mutex_init(struct thread_mutexlock *m)
 {
@@ -10,7 +10,7 @@ void thread_mutex_lock(struct thread_mutexlock *m)
 {
   // The xchg is atomic.
   while (xchg(&m->locked, 1) != 0)
-    yield();
+    sleep(1);
 
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that the critical section's memory

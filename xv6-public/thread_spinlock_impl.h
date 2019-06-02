@@ -1,4 +1,5 @@
 #include "thread_spinlock.h"
+#include "thread_util.h"
 
 void thread_spin_init(struct thread_spinlock *lk)
 {
