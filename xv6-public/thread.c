@@ -3,6 +3,7 @@
 #include "user.h"
 #include "thread_spinlock.h"
 #include "thread_mutexlock.h"
+#include "defs.h"
 
 struct thread_spinlock lock;
 struct thread_mutexlock ml;
