@@ -1,10 +1,3 @@
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "x86.h"
-#include "memlayout.h"
-#include "mmu.h"
-#include "proc.h"
 #include "thread_mutexlock.h"
 
 void thread_mutex_init(struct thread_mutexlock *m)
