@@ -1,4 +1,5 @@
 #include "thread_mutexlock.h"
+#include "x86.h"
 
 void thread_mutex_init(struct thread_mutexlock *m)
 {
