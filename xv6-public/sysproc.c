@@ -6,8 +6,6 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
-#include "thread_spinlock.h"
-#include "thread_mutexlock.h"
 
 int sys_fork(void)
 {
