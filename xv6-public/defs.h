@@ -138,15 +138,15 @@ void release(struct spinlock *);
 void pushcli(void);
 void popcli(void);
 
-// // thread_spinlock.c
-// void thread_spin_init(struct thread_spinlock *lk);
-// void thread_spin_lock(struct thread_spinlock *lk);
-// void thread_spin_unlock(struct thread_spinlock *lk);
+// thread_spinlock.c
+void thread_spin_init(struct thread_spinlock *lk);
+void thread_spin_lock(struct thread_spinlock *lk);
+void thread_spin_unlock(struct thread_spinlock *lk);
 
-// // thread_mutexlock.c
-// void thread_mutex_init(struct thread_mutexlock *m);
-// void thread_mutex_lock(struct thread_mutexlock *m);
-// void thread_mutex_unlock(struct thread_mutexlock *m);
+// thread_mutexlock.c
+void thread_mutex_init(struct thread_mutexlock *m);
+void thread_mutex_lock(struct thread_mutexlock *m);
+void thread_mutex_unlock(struct thread_mutexlock *m);
 
 // sleeplock.c
 void acquiresleep(struct sleeplock *);
