@@ -10,12 +10,13 @@
 void thread_spin_init(struct thread_spinlock *lk)
 {
   lk->locked = 0;
+  lk->cpu = 0;
 }
 
 void thread_spin_lock(struct thread_spinlock *lk)
 {
   pushcli(); // disable interrupts to avoid deadlock.
-  if (holding(lk))
+  if (holding_spinlock(lk))
     panic("acquire");
 
   // The xchg is atomic.
@@ -26,11 +27,13 @@ void thread_spin_lock(struct thread_spinlock *lk)
   // past this point, to ensure that the critical section's memory
   // references happen after the lock is acquired.
   __sync_synchronize();
+
+  lk->cpu = mycpu();
 }
 
 void thread_spin_unlock(struct thread_spinlock *lk)
 {
-  if (!holding(lk))
+  if (!holding_spinlock(lk))
     panic("release");
 
   // Tell the C compiler and the processor to not move loads or stores
@@ -48,4 +51,14 @@ void thread_spin_unlock(struct thread_spinlock *lk)
                :);
 
   popcli();
+}
+
+// Check whether this cpu is holding the lock.
+int holding_spinlock(struct thread_spinlock *lock)
+{
+  int r;
+  pushcli();
+  r = lock->locked && lock->cpu == mycpu();
+  popcli();
+  return r;
 }
