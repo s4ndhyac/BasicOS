@@ -27,8 +27,7 @@ volatile unsigned int delay(unsigned int d)
 }
 
 // Thread 1 (sender)
-void *
-send(struct q *q, void *p)
+void *send(struct q *q, void *p)
 {
   thread_mutex_lock(&q->m);
   while (q->ptr != 0)
@@ -36,12 +35,12 @@ send(struct q *q, void *p)
   q->ptr = p;
   thread_cond_signal(&q->cv);
   thread_mutex_unlock(&q->m);
+  return p;
 }
 
 // Thread 2 (receiver)
 
-void *
-recv(struct q *q)
+void *recv(struct q *q)
 {
   void *p;
 
