@@ -23,9 +23,3 @@
 #define SYS_thread_create 22
 #define SYS_thread_join 23
 #define SYS_thread_exit 24
-#define SYS_thread_spin_init 25
-#define SYS_thread_spin_lock 26
-#define SYS_thread_spin_unlock 27
-#define SYS_thread_mutex_init 28
-#define SYS_thread_mutex_lock 29
-#define SYS_thread_mutex_unlock 30

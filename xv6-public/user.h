@@ -1,7 +1,5 @@
 struct stat;
 struct rtcdate;
-struct thread_spinlock;
-struct thread_mutex;
 
 // system calls
 int fork(void);
@@ -28,12 +26,6 @@ int uptime(void);
 int thread_create(void (*fcn)(void *), void *, void *);
 int thread_join(void);
 int thread_exit(void);
-void thread_spin_init(struct thread_spinlock *);
-void thread_spin_lock(struct thread_spinlock *);
-void thread_spin_unlock(struct thread_spinlock *);
-void thread_mutex_init(struct thread_mutex *);
-void thread_mutex_lock(struct thread_mutex *);
-void thread_mutex_unlock(struct thread_mutex *);
 
 // ulib.c
 int stat(const char *, struct stat *);

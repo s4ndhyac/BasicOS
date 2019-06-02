@@ -6,6 +6,8 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "thread_spinlock.h"
+#include "thread_mutexlock.h"
 
 int sys_fork(void)
 {
@@ -102,28 +104,4 @@ int sys_thread_join(void)
 int sys_thread_exit(void)
 {
   return thread_exit();
-}
-
-void sys_thread_spin_init(struct thread_spinlock *lk)
-{
-}
-
-void sys_thread_spin_lock(struct thread_spinlock *lk)
-{
-}
-
-void sys_thread_spin_unlock(struct thread_spinlock *lk)
-{
-}
-
-void sys_thread_mutex_init(struct thread_mutex *m)
-{
-}
-
-void sys_thread_mutex_lock(struct thread_mutex *m)
-{
-}
-
-void sys_thread_mutex_unlock(struct thread_mutex *m)
-{
 }

@@ -102,12 +102,6 @@ extern int sys_uptime(void);
 extern int sys_thread_create(void);
 extern int sys_thread_join(void);
 extern int sys_thread_exit(void);
-extern int sys_thread_spin_init(void);
-extern int sys_thread_spin_lock(void);
-extern int sys_thread_spin_unlock(void);
-extern int sys_thread_mutex_init(void);
-extern int sys_thread_mutex_lock(void);
-extern int sys_thread_mutex_unlock(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -134,12 +128,6 @@ static int (*syscalls[])(void) = {
     [SYS_thread_create] sys_thread_create,
     [SYS_thread_join] sys_thread_join,
     [SYS_thread_exit] sys_thread_exit,
-    [SYS_thread_spin_init] sys_thread_spin_init,
-    [SYS_thread_spin_lock] sys_thread_spin_lock,
-    [SYS_thread_spin_unlock] sys_thread_spin_unlock,
-    [SYS_thread_mutex_init] sys_thread_mutex_init,
-    [SYS_thread_mutex_lock] sys_thread_mutex_lock,
-    [SYS_thread_mutex_unlock] sys_thread_mutex_unlock,
 };
 
 void syscall(void)
