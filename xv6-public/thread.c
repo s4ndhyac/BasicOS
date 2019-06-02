@@ -55,6 +55,9 @@ void do_work(void *arg)
 int main(int argc, char *argv[])
 {
 
+  thread_spin_init(&lock);
+  thread_mutex_init(&ml);
+
   struct balance b1 = {"b1", 3200};
   struct balance b2 = {"b2", 2800};
 
