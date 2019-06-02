@@ -1,9 +1,8 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
-#include "thread_spinlock.h"
-#include "thread_mutexlock.h"
-#include "defs.h"
+#include "thread_spinlock_impl.h"
+#include "thread_mutexlock_impl.h"
 
 struct thread_spinlock lock;
 struct thread_mutexlock ml;
