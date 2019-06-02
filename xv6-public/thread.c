@@ -2,6 +2,9 @@
 #include "stat.h"
 #include "user.h"
 
+struct thread_spinlock lock;
+struct thread_mutex ml;
+
 struct balance
 {
   char name[32];
@@ -32,11 +35,13 @@ void do_work(void *arg)
 
   for (i = 0; i < b->amount; i++)
   {
-    //thread_spin_lock(&lock);
+    thread_spin_lock(&lock);
+    //thread_mutex_lock(&ml);
     old = total_balance;
     delay(100000);
     total_balance = old + 1;
-    //thread_spin_unlock(&lock);
+    //thread_mutex_unlock(&ml);
+    thread_spin_unlock(&lock);
   }
 
   printf(1, "Done s:%x\n", b->name);
