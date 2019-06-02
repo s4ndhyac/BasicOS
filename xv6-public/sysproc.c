@@ -101,5 +101,25 @@ int sys_thread_join(void)
 
 int sys_thread_exit(void)
 {
-  return thread_exit();
+  thread_exit();
+  return 0;
+}
+
+int sys_thread_sleep(void)
+{
+  void *chan;
+  void *lk;
+  if (argptr(0, (void *)&chan, sizeof(void *)) < 0 || argptr(1, (void *)&lk, sizeof(void *)) < 0)
+    return -1;
+  thread_sleep(chan, lk);
+  return 0;
+}
+
+int sys_thread_wakeup(void)
+{
+  void *chan;
+  if (argptr(0, (void *)&chan, sizeof(void *)) < 0)
+    return -1;
+  wakeup(chan);
+  return 0;
 }

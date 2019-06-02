@@ -9,8 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-struct thread_spinlock;
-struct thread_mutexlock;
+struct thread_mutex;
 
 // bio.c
 void binit(void);
@@ -124,7 +123,10 @@ void wakeup(void *);
 void yield(void);
 int thread_create(void (*fcn)(void *), void *arg, void *stack);
 int thread_join(void);
-int thread_exit(void);
+void thread_exit(void);
+void mutex_lock(struct thread_mutex *);
+void mutex_unlock(struct thread_mutex *);
+void thread_sleep(void *, void *);
 
 // swtch.S
 void swtch(struct context **, struct context *);

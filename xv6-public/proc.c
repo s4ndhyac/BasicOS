@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "thread_mutex.h"
 
 struct
 {
@@ -645,7 +646,7 @@ int thread_join(void)
 // Exit the current thread.  Does not return.
 // An exited thread remains in the zombie state
 // until its parent calls wait() to find out it exited.
-int thread_exit(void)
+void thread_exit(void)
 {
   struct proc *curproc = myproc();
   struct proc *p;
@@ -689,5 +690,63 @@ int thread_exit(void)
   curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
-  return 0;
+}
+
+void mutex_lock(struct thread_mutex *lk)
+{
+  while (xchg(&lk->locked, 1) != 0)
+    yield();
+  __sync_synchronize();
+  return;
+}
+
+void mutex_unlock(struct thread_mutex *lk)
+{
+  __sync_synchronize();
+  asm volatile("movl $0, %0"
+               : "+m"(lk->locked)
+               :);
+  return;
+}
+
+// similar to existing sleep method
+// except uses a mutex lock instead of spinlock
+// Atomically release lock and sleep on chan.
+// Reacquires lock when awakened.
+void thread_sleep(void *chan, void *lk)
+{
+  struct proc *p = myproc();
+
+  if (p == 0)
+    panic("sleep");
+
+  if (lk == 0)
+    panic("sleep without lk");
+
+  // Must acquire ptable.lock in order to
+  // change p->state and then call sched.
+  // Once we hold ptable.lock, we can be
+  // guaranteed that we won't miss any wakeup
+  // (wakeup runs with ptable.lock locked),
+  // so it's okay to release lk.
+  if (lk != &ptable.lock)
+  {                        //DOC: sleeplock0
+    acquire(&ptable.lock); //DOC: sleeplock1
+    mutex_unlock(lk);
+  }
+  // Go to sleep.
+  p->chan = chan;
+  p->state = SLEEPING;
+
+  sched();
+
+  // Tidy up.
+  p->chan = 0;
+
+  // Reacquire original lock.
+  if (lk != &ptable.lock)
+  { //DOC: sleeplock2
+    release(&ptable.lock);
+    mutex_lock(lk);
+  }
 }
