@@ -3,8 +3,7 @@
 #include "user.h"
 #include "thread_lock_impl.h"
 
-char *buffer;
-struct q messageQ;
+struct q msgQ;
 
 struct balance
 {
@@ -54,40 +53,39 @@ void *recv(struct q *q)
   return p;
 }
 
-void write_work(void *arg)
+void send_msg(void *arg)
 {
-  char *newMessage = "Hello, Multi-thread world!";
+  char *msg = "Hello, Multi-thread world!";
   struct balance *b = (struct balance *)arg;
-  printf(1, "I send message: %s\n", newMessage);
-  printf(1, "send message by s:%x\n", b->name);
-  send(&messageQ, newMessage);
+  printf(1, "Send message: %s\n", msg);
+  printf(1, "Send message by s:%x\n", b->name);
+  send(&msgQ, msg);
   thread_exit();
   return;
 }
 
-void read_work(void *arg)
+void receive_msg(void *arg)
 {
-  char *receiveMessage = recv(&messageQ);
+  char *r_msg = recv(&msgQ);
   struct balance *b = (struct balance *)arg;
-  printf(1, "receive message by s:%x\n", b->name);
-  printf(1, "I receive message: %s\n", receiveMessage);
+  printf(1, "Receive message by s:%x\n", b->name);
+  printf(1, "Receive message: %s\n", r_msg);
   thread_exit();
   return;
 }
 
 int main(int argc, char *argv[])
 {
-  printf(1, "Conditional variable test:\n");
-  thread_cond_init(&messageQ);
-  buffer = "hello world";
-  struct balance b1 = {"b1", 10};
-  struct balance b2 = {"b2", 10};
+  printf(1, "Extracredit: Conditional variable:\n");
+  thread_cond_init(&msgQ);
+  struct balance b1 = {"b1", 100};
+  struct balance b2 = {"b2", 100};
   void *s1, *s2;
   int t1, t2, r1, r2;
   s1 = malloc(4096);
   s2 = malloc(4096);
-  t1 = thread_create(write_work, (void *)&b1, s1);
-  t2 = thread_create(read_work, (void *)&b2, s2);
+  t1 = thread_create(send_msg, (void *)&b1, s1);
+  t2 = thread_create(receive_msg, (void *)&b2, s2);
   r1 = thread_join();
   r2 = thread_join();
   printf(1, "Threads finished: (%d):%d, (%d):%d, shared balance:%d\n", t1, r1,

@@ -36,12 +36,13 @@ void do_work(void *arg)
 
   for (i = 0; i < b->amount; i++)
   {
+    //NOTE: Comment out either spin_lock or mutex and check one set of locks at a time
     thread_spin_lock(&lock);
-    //thread_mutex_lock(&ml);
+    thread_mutex_lock(&ml);
     old = total_balance;
     delay(100000);
     total_balance = old + 1;
-    //thread_mutex_unlock(&ml);
+    thread_mutex_unlock(&ml);
     thread_spin_unlock(&lock);
   }
 
