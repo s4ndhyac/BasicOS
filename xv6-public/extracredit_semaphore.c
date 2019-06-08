@@ -3,8 +3,7 @@
 #include "user.h"
 #include "thread_lock_impl.h"
 
-#define N 20
-#define MAX_LOOPS 20
+#define N 5
 
 struct balance
 {
@@ -47,7 +46,7 @@ void prod_work(void *arg)
 {
   int i = 0;
   struct balance *b = (struct balance *)arg;
-  while (i++ < MAX_LOOPS)
+  while (i++ < N)
   {
     sem_wait(&consumer);
     thread_mutex_lock(&mLock);
@@ -58,25 +57,6 @@ void prod_work(void *arg)
   }
   thread_exit();
   return;
-  // int p = 0;
-  // int count = 0;
-  // while (1)
-  // {
-  //   if (count > MAX_LOOPS)
-  //     break;
-  //   sem_wait(&consumer);
-  //   thread_mutex_lock(&mLock);
-  //   count++;
-  //   buffer[p] = count;
-  //   printf(1, "Produce %d\n", buffer[p]);
-  //   thread_mutex_unlock(&mLock);
-  //   sem_post(&producer);
-  //   p = (p + 1) % N;
-  //   sleep(1);
-  // }
-
-  // thread_exit();
-  // return;
 }
 
 void cons_work(void *arg)
@@ -84,7 +64,7 @@ void cons_work(void *arg)
   struct balance *b = (struct balance *)arg;
   int i = 0;
   int value;
-  while (i++ < MAX_LOOPS)
+  while (i++ < N)
   {
     sem_wait(&producer);
     thread_mutex_lock(&mLock);
@@ -95,24 +75,6 @@ void cons_work(void *arg)
   }
   thread_exit();
   return;
-  // int c = 0;
-  // int count = 0;
-  // while (1)
-  // {
-  //   if (count > MAX_LOOPS)
-  //     break;
-  //   sem_wait(&producer);
-  //   thread_mutex_lock(&mLock);
-  //   printf(1, "Consume %d\n", buffer[c]);
-  //   count++;
-  //   buffer[c] = 0;
-  //   thread_mutex_unlock(&mLock);
-  //   sem_post(&consumer);
-  //   c = (c + 1) % N;
-  //   sleep(3);
-  // }
-  // thread_exit();
-  // return;
 }
 
 int main(int argc, char *argv[])
