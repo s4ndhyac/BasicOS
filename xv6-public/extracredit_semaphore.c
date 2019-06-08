@@ -49,7 +49,6 @@ void prod_work(void *arg)
   struct balance *b = (struct balance *)arg;
   while (i++ < MAX_LOOPS)
   {
-    sleep(rand() % 10);
     sem_wait(&consumer);
     thread_mutex_lock(&mLock);
     insertbuffer(i);
