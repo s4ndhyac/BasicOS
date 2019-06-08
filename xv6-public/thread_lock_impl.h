@@ -2,6 +2,7 @@
 #include "thread_mutex.h"
 #include "thread_util.h"
 #include "thread_cond_var.h"
+#include "thread_lock.h"
 
 // spinlock
 void thread_spin_init(struct thread_spinlock *lk)
@@ -72,15 +73,6 @@ void thread_mutex_unlock(struct thread_mutex *m)
                : "+m"(m->locked)
                :);
 }
-
-// conditional variable
-struct q
-{
-  struct thread_cond cv;
-  struct thread_mutex m;
-  int count;
-  void *ptr;
-};
 
 void thread_cond_init(struct q *q)
 {
