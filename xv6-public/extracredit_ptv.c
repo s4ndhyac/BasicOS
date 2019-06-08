@@ -41,7 +41,7 @@ void do_work(void *arg)
   int amount = per_thread_balance[id].amount;
 
   thread_mutex_lock(&printLock);
-  printf(1, "[thread %d: %s] Start to do work. Workload: %d\n", id, name, amount);
+  printf(1, "Thread %d %s: Start to do work. Workload: %d\n", id, name, amount);
   thread_mutex_unlock(&printLock);
 
   for (i = 0; i < amount; i++)
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
     // using sbrk instead of malloc to ensure page aligned
     s[i] = sbrk(4096);
-    t[i] = thread_create(do_work, (void *)&per_thread_balance[i], (void *)s[i]);
+    t[i] = thread_create(do_work, (void *)&per_thread_balance[i], s[i]);
   }
 
   for (i = 0; i < MAX_THREADS; i++)
