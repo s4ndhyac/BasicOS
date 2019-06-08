@@ -122,3 +122,27 @@ void sem_post(struct q *sem)
   thread_mutex_unlock(&(sem->m));
   thread_cond_signal(&(sem->cv));
 }
+
+// Thread local storage
+struct tls
+{
+  int tid;
+};
+
+int gettid(void)
+{
+  //local variable is on the stack and roughly the position of stack pointer
+  int p;
+  // page aligning and rounding up the value of the stack pointer to the nearest page
+  // to get the top of the stack
+  p = ((int)&p) / 4096;
+  p = (p + 1) * 4096;
+
+  //leaving space for tls struct at the top of the stack
+  p -= sizeof(struct tls);
+
+  // typecasting stack pointer to tls to get tid
+  struct tls *t = (struct tls *)p;
+
+  return t->tid;
+}
