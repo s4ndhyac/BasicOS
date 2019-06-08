@@ -157,13 +157,14 @@ void userinit(void)
 }
 
 // Grow current process's memory by n bytes.
-// Return 0 on success, -1 on failure.
+// Return oldsz on success, -1 on failure.
 int growproc(int n)
 {
-  uint sz;
+  uint sz, oldsz;
   struct proc *curproc = myproc();
 
   sz = curproc->sz;
+  oldsz = sz;
   if (n > 0)
   {
     if ((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
@@ -171,12 +172,31 @@ int growproc(int n)
   }
   else if (n < 0)
   {
+    // do not deallocate shared mem of parent if current proc is thread
+    if (curproc->isthread)
+      return -1;
+
     if ((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
+
   curproc->sz = sz;
+
+  // if current process is thread then update size of parent in current process
+  if (curproc->isthread)
+    curproc->parent->sz = sz;
+  // if current process is thread then update size of parent and any child threads
+  struct proc *p;
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->isthread && (p->parent == curproc->parent || p->parent == curproc))
+      p->sz = curproc->sz;
+  }
+  release(&ptable.lock);
+
   switchuvm(curproc);
-  return 0;
+  return oldsz;
 }
 
 // Create a new process copying p as the parent.
