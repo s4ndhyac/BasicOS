@@ -17,7 +17,6 @@ union header {
     uint size;
   } s;
   Align x;
-  struct thread_mutex ml;
 };
 
 // mutex
@@ -39,15 +38,17 @@ void mutex_unlock(struct thread_mutex *m)
 
 typedef union header Header;
 
-static Header base = {.ml.locked = 0};
+static Header base;
 static Header *freep;
+
+static struct thread_mutex ml = {.locked = 0};
 
 void free(void *ap)
 {
   Header *bp, *p;
 
   bp = (Header *)ap - 1;
-  mutex_lock(&base.ml);
+  mutex_lock(&ml);
   for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
     if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
       break;
@@ -66,7 +67,7 @@ void free(void *ap)
   else
     p->s.ptr = bp;
   freep = p;
-  mutex_unlock(&base.ml);
+  mutex_unlock(&ml);
 }
 
 static Header *
@@ -93,7 +94,7 @@ malloc(uint nbytes)
   uint nunits;
 
   nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
-  mutex_lock(&base.ml);
+  mutex_lock(&ml);
   if ((prevp = freep) == 0)
   {
     base.s.ptr = freep = prevp = &base;
@@ -118,5 +119,5 @@ malloc(uint nbytes)
       if ((p = morecore(nunits)) == 0)
         return 0;
   }
-  mutex_unlock(&base.ml);
+  mutex_unlock(&ml);
 }
