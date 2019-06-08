@@ -43,8 +43,8 @@ void send_msg(void *arg)
 {
   char *msg = "Hello world!";
   struct balance *b = (struct balance *)arg;
-  printf(1, "Send message: %s\n", msg);
-  printf(1, "Send message by s:%x\n", b->name);
+  printf(1, "Message sent: %s\n", msg);
+  printf(1, "Message sent by s:%x\n", b->name);
   send(&msgQ, msg);
   thread_exit();
   return;
@@ -54,8 +54,8 @@ void receive_msg(void *arg)
 {
   char *r_msg = recv(&msgQ);
   struct balance *b = (struct balance *)arg;
-  printf(1, "Receive message by s:%x\n", b->name);
-  printf(1, "Receive message: %s\n", r_msg);
+  printf(1, "Message received by s:%x\n", b->name);
+  printf(1, "Message received: %s\n", r_msg);
   thread_exit();
   return;
 }
