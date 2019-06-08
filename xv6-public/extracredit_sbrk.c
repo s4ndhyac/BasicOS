@@ -24,7 +24,7 @@ void do_sbrk(void *arg)
   char *mem = sbrk(b->amount);
 
   thread_mutex_lock(&ml);
-  printf(1, "Thread %s sbrk: after sbrk(%d) process size = %d and address returned = %d\n", b->amount, b->name, (uint)sbrk(0), (uint)mem);
+  printf(1, "Thread %s sbrk: after sbrk(%d) process size = %d and address returned = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
   thread_mutex_unlock(&ml);
 
   thread_exit();
@@ -43,7 +43,7 @@ void do_malloc(void *arg)
   void *mem = malloc(b->amount);
 
   thread_mutex_lock(&ml);
-  printf(1, "Thread %s malloc: after malloc(%d) process size = %d and address retured = %d\n", b->amount, b->name, (uint)sbrk(0), (uint)mem);
+  printf(1, "Thread %s malloc: after malloc(%d) process size = %d and address retured = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
   thread_mutex_unlock(&ml);
 
   thread_exit();
