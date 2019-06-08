@@ -10,7 +10,7 @@ typedef struct balance
   char amount;
 } balance_t;
 
-balance_t per_thread_balance[MAX_THREADS];
+balance_t per_thread_balance[4096];
 
 volatile int total_balance = 0;
 
