@@ -24,7 +24,7 @@ void do_sbrk(void *arg)
   char *mem = sbrk(b->amount);
 
   thread_mutex_lock(&ml);
-  printf(1, "Thread %s sbrk: after sbrk(%d) process size = %d and address returned = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
+  printf(1, "Thread %s sbrk: after sbrk(%d) process size = %d and old size returned = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
   thread_mutex_unlock(&ml);
 
   thread_exit();
@@ -43,7 +43,7 @@ void do_malloc(void *arg)
   void *mem = malloc(b->amount);
 
   thread_mutex_lock(&ml);
-  printf(1, "Thread %s malloc: after malloc(%d) process size = %d and address retured = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
+  printf(1, "Thread %s malloc: after malloc(%d) process size = %d and old size returned = %d\n", b->name, b->amount, (uint)sbrk(0), (uint)mem);
   thread_mutex_unlock(&ml);
 
   thread_exit();
@@ -56,9 +56,9 @@ int main(int argc, char *argv[])
   thread_mutex_init(&ml);
 
   struct balance b1 = {"b1", 50};
-  struct balance b2 = {"b2", 100};
-  struct balance b3 = {"b1", 150};
-  struct balance b4 = {"b2", 200};
+  struct balance b2 = {"b2", 50};
+  struct balance b3 = {"b3", 100};
+  struct balance b4 = {"b4", 200};
 
   void *s1, *s2, *s3, *s4;
   int t1, t2, t3, t4, r1, r2, r3, r4;
