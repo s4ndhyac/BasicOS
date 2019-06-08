@@ -88,7 +88,7 @@ void cons_work(void *arg)
   {
     sem_wait(&producer);
     thread_mutex_lock(&mLock);
-    value = dequeuebuffer(value);
+    value = dequeuebuffer();
     thread_mutex_unlock(&mLock);
     sem_post(&consumer);
     printf(1, "Consumer %s dequeue %d from buffer\n", b->name, value);
