@@ -3,6 +3,7 @@
 #include "user.h"
 #include "param.h"
 #include "thread_mutex.h"
+#include "thread_util.h"
 
 // Memory allocator by Kernighan and Ritchie,
 // The C programming Language, 2nd ed.  Section 8.7.
@@ -19,23 +20,34 @@ union header {
   struct thread_mutex ml;
 };
 
+// mutex
+void mutex_lock(struct thread_mutex *m)
+{
+  // The xchg is atomic.
+  while (xchg(&m->locked, 1) != 0)
+    sleep(1);
+  __sync_synchronize();
+}
+
+void mutex_unlock(struct thread_mutex *m)
+{
+  __sync_synchronize();
+  asm volatile("movl $0, %0"
+               : "+m"(m->locked)
+               :);
+}
+
 typedef union header Header;
 
-static Header base;
+static Header base = {.ml.locked = 0};
 static Header *freep;
-
-void thread_mutex_init(struct thread_mutex *m);
-
-void thread_mutex_lock(struct thread_mutex *m);
-
-void thread_mutex_unlock(struct thread_mutex *m);
 
 void free(void *ap)
 {
   Header *bp, *p;
 
   bp = (Header *)ap - 1;
-  thread_mutex_lock(&base.ml);
+  mutex_lock(&base.ml);
   for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
     if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
       break;
@@ -54,7 +66,7 @@ void free(void *ap)
   else
     p->s.ptr = bp;
   freep = p;
-  thread_mutex_unlock(&base.ml);
+  mutex_unlock(&base.ml);
 }
 
 static Header *
@@ -81,7 +93,7 @@ malloc(uint nbytes)
   uint nunits;
 
   nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
-  thread_mutex_lock(&base.ml);
+  mutex_lock(&base.ml);
   if ((prevp = freep) == 0)
   {
     base.s.ptr = freep = prevp = &base;
@@ -106,5 +118,5 @@ malloc(uint nbytes)
       if ((p = morecore(nunits)) == 0)
         return 0;
   }
-  thread_mutex_unlock(&base.ml);
+  mutex_unlock(&base.ml);
 }
