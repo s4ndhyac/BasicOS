@@ -11,20 +11,6 @@ struct balance
   int amount;
 };
 
-volatile int total_balance = 0;
-
-volatile unsigned int delay(unsigned int d)
-{
-  unsigned int i;
-  for (i = 0; i < d; i++)
-  {
-    __asm volatile("nop" ::
-                       :);
-  }
-
-  return i;
-}
-
 // Thread 1 (sender)
 void *send(struct q *q, void *p)
 {
@@ -55,7 +41,7 @@ void *recv(struct q *q)
 
 void send_msg(void *arg)
 {
-  char *msg = "Hello, Multi-thread world!";
+  char *msg = "Hello world!";
   struct balance *b = (struct balance *)arg;
   printf(1, "Send message: %s\n", msg);
   printf(1, "Send message by s:%x\n", b->name);
@@ -78,8 +64,8 @@ int main(int argc, char *argv[])
 {
   printf(1, "Extracredit: Conditional variable:\n");
   thread_cond_init(&msgQ);
-  struct balance b1 = {"b1", 100};
-  struct balance b2 = {"b2", 100};
+  struct balance b1 = {"b1", 0};
+  struct balance b2 = {"b2", 0};
   void *s1, *s2;
   int t1, t2, r1, r2;
   s1 = malloc(4096);
@@ -88,8 +74,8 @@ int main(int argc, char *argv[])
   t2 = thread_create(receive_msg, (void *)&b2, s2);
   r1 = thread_join();
   r2 = thread_join();
-  printf(1, "Threads finished: (%d):%d, (%d):%d, shared balance:%d\n", t1, r1,
-         t2, r2, total_balance);
+  printf(1, "Threads finished: (%d):%d, (%d):%d\n", t1, r1,
+         t2, r2);
   free(s1);
   free(s2);
   exit();
