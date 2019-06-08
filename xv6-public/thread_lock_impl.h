@@ -78,7 +78,7 @@ struct q
 {
   struct thread_cond cv;
   struct thread_mutex m;
-  int num;
+  int count;
   void *ptr;
 };
 
@@ -99,31 +99,26 @@ void thread_cond_signal(struct thread_cond *cv)
 }
 
 // Semaphore
-void sem_init(struct q *q, uint num)
+void sem_init(struct q *q, uint count)
 {
   q->ptr = 0;
-  q->num = num;
+  q->count = count;
   thread_cond_init(q);
 }
 
-void sem_wait(struct q *semm)
+void sem_wait(struct q *sem)
 {
-  thread_mutex_lock(&(semm->m));
-  while (semm->num == 0)
-    thread_cond_wait(&(semm->cv), &(semm->m));
-  semm->num--;
-  thread_mutex_unlock(&(semm->m));
+  thread_mutex_lock(&(sem->m));
+  while (sem->count == 0)
+    thread_cond_wait(&(sem->cv), &(sem->m));
+  sem->count--;
+  thread_mutex_unlock(&(sem->m));
 }
 
-void sem_post(struct q *semm)
+void sem_post(struct q *sem)
 {
-  thread_mutex_lock(&(semm->m));
-  /*fuck! Here is a stupid mistake!Just add the num will be ok!!
-	 Otherwise,we will be blocked here！
-	 while ( semm->num == 0)
-	 pthread_cond_wait(&(semm->cond), &(semm->lock));
-	 */
-  semm->num++;
-  thread_mutex_unlock(&(semm->m));
-  thread_cond_signal(&(semm->cv));
+  thread_mutex_lock(&(sem->m));
+  sem->count++;
+  thread_mutex_unlock(&(sem->m));
+  thread_cond_signal(&(sem->cv));
 }
