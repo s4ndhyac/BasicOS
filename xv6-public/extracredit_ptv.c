@@ -14,6 +14,18 @@ balance_t per_thread_balance[MAX_THREADS];
 
 volatile int total_balance = 0;
 
+volatile unsigned int delay(unsigned int d)
+{
+  unsigned int i;
+  for (i = 0; i < d; i++)
+  {
+    __asm volatile("nop" ::
+                       :);
+  }
+
+  return i;
+}
+
 struct thread_mutex lock;
 struct thread_mutex printLock;
 
@@ -62,8 +74,9 @@ int main(int argc, char *argv[])
   int i;
   for (i = 0; i < MAX_THREADS; i++)
   {
-    char *name = {'b', i, '\0'};
-    strcpy(per_thread_balance[i].name, name);
+    per_thread_balance[i].name[0] = 'b';
+    per_thread_balance[i].name[1] = i;
+    per_thread_balance[i].name[2] = '\0';
     per_thread_balance[i].amount = (i + 1) * 100;
     balance_sum += per_thread_balance[i].amount;
 
