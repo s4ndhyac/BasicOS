@@ -51,9 +51,9 @@ void prod_work(void *arg)
     sem_wait(&consumer);
     thread_mutex_lock(&mLock);
     insertbuffer(i);
+    printf(1, "Producer %s added %d to buffer\n", b->name, i);
     thread_mutex_unlock(&mLock);
     sem_post(&producer);
-    printf(1, "Producer %s added %d to buffer\n", b->name, i);
   }
   thread_exit();
   return;
@@ -69,9 +69,9 @@ void cons_work(void *arg)
     sem_wait(&producer);
     thread_mutex_lock(&mLock);
     value = dequeuebuffer();
+    printf(1, "Consumer %s dequeue %d from buffer\n", b->name, value);
     thread_mutex_unlock(&mLock);
     sem_post(&consumer);
-    printf(1, "Consumer %s dequeue %d from buffer\n", b->name, value);
   }
   thread_exit();
   return;
