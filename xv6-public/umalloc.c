@@ -113,11 +113,15 @@ malloc(uint nbytes)
         p->s.size = nunits;
       }
       freep = prevp;
+      mutex_unlock(&ml);
       return (void *)(p + 1);
     }
     if (p == freep)
       if ((p = morecore(nunits)) == 0)
+      {
+        mutex_unlock(&ml);
         return 0;
+      }
   }
   mutex_unlock(&ml);
 }
