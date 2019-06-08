@@ -17,7 +17,7 @@ union header {
     uint size;
   } s;
   Align x;
-  struct thread_mutex ml;
+  //struct thread_mutex ml;
 };
 
 // // mutex
