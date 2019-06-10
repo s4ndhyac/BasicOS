@@ -3,8 +3,6 @@
 #include "user.h"
 #include "thread_lock_impl.h"
 
-#define THREAD_NUM 10
-
 typedef struct balance
 {
   char name[32];
