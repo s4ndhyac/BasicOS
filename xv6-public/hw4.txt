@@ -25,5 +25,5 @@ Extracredit implementations:
     - Fixed only sbrk - growproc function
     - malloc not fixed
   -> extracredit_sbrk.c
-    - small test program that creates 4 threads and calls sbrk and malloc alternately
-    - each sbrk or malloc request for the amount of memory specified in the balance->amount variable
+    - small test program that creates 2 threads and calls sbrk twice
+    - each sbrk requests for the amount of memory specified in the balance->amount variable
