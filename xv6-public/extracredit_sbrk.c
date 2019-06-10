@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   r2 = thread_join();
 
   thread_mutex_lock(&ml);
-  printf(1, "Threads finished: (%d):%d, (%d):%d, (%d):%d, (%d):%d\n",
+  printf(1, "Threads finished: (%d):%d, (%d):%d\n",
          t1, r1, t2, r2);
   printf(1, "process size is %d after all child threads have exited\n", (int)sbrk(0));
   thread_mutex_unlock(&ml);
