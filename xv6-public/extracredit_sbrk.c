@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
   thread_mutex_init(&ml);
 
   struct balance b1 = {"b1", 50};
-  struct balance b2 = {"b2", 50};
-  struct balance b3 = {"b3", 100};
+  struct balance b2 = {"b2", 100};
+  struct balance b3 = {"b3", 150};
   struct balance b4 = {"b4", 200};
 
   void *s1, *s2, *s3, *s4;
@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
   s4 = sbrk(4096);
 
   t1 = thread_create(do_sbrk, (void *)&b1, s1);
-  t2 = thread_create(do_malloc, (void *)&b2, s2);
-  t3 = thread_create(do_sbrk, (void *)&b3, s3);
-  t4 = thread_create(do_malloc, (void *)&b4, s4);
+  t2 = thread_create(do_sbrk, (void *)&b2, s2);
+  t3 = thread_create(do_malloc, (void *)&b3, s3);
+  t4 = thread_create(do_sbrk, (void *)&b4, s4);
 
   r1 = thread_join();
   r2 = thread_join();
