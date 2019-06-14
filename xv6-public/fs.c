@@ -389,31 +389,80 @@ bmap(struct inode *ip, uint bn)
   //                    -> [127] -> pointer to head of next indirect block
   //set the [127] ptr of each newly allocted indirect block to 0
 
-  if (bn < NDIRECT)
+  int indirect_bno = 0;
+  while (bn > NINDIRECT - 1)
   {
-    if ((addr = ip->addrs[bn]) == 0)
-      ip->addrs[bn] = addr = balloc(ip->dev);
-    return addr;
+    indirect_bno++;
+    bn -= NINDIRECT;
   }
-  bn -= NDIRECT;
 
-  if (bn < NINDIRECT)
+  int is_new = 0;
+  if ((addr = ip->addrs[0]) == 0)
   {
-    // Load indirect block, allocating if necessary.
-    if ((addr = ip->addrs[NDIRECT]) == 0)
-      ip->addrs[NDIRECT] = addr = balloc(ip->dev);
+    ip->addrs[0] = addr = balloc(ip->dev);
+    is_new = 1;
+  }
+  bp = bread(ip->dev, addr);
+  a = (uint *)bp->data;
+  if (is_new)
+  {
+    a[NINDIRECT - 1] = 0;
+    is_new = 0;
+  }
+
+  for (int i = 1; i < indirect_bno; i++)
+  {
+    if ((addr = a[NINDIRECT - 1]) == 0)
+    {
+      a[NINDIRECT - 1] = addr = balloc(ip->dev);
+      is_new = 1;
+    }
+    log_write(bp);
+    brelse(bp);
+
     bp = bread(ip->dev, addr);
     a = (uint *)bp->data;
-    if ((addr = a[bn]) == 0)
+    if (is_new)
     {
-      a[bn] = addr = balloc(ip->dev);
-      log_write(bp);
+      a[NINDIRECT - 1] = 0;
+      is_new = 0;
     }
-    brelse(bp);
-    return addr;
   }
 
-  panic("bmap: out of range");
+  if ((addr = a[bn]) == 0)
+  {
+    a[bn] = addr = balloc(ip->dev);
+    log_write(bp);
+  }
+
+  brelse(bp);
+  return addr;
+
+  // if (bn < NDIRECT)
+  // {
+  //   if ((addr = ip->addrs[bn]) == 0)
+  //     ip->addrs[bn] = addr = balloc(ip->dev);
+  //   return addr;
+  // }
+  // bn -= NDIRECT;
+
+  // if (bn < NINDIRECT)
+  // {
+  //   // Load indirect block, allocating if necessary.
+  //   if ((addr = ip->addrs[0]) == 0)
+  //     ip->addrs[0] = addr = balloc(ip->dev);
+  //   bp = bread(ip->dev, addr);
+  //   a = (uint *)bp->data;
+  //   if ((addr = a[bn]) == 0)
+  //   {
+  //     a[bn] = addr = balloc(ip->dev);
+  //     log_write(bp);
+  //   }
+  //   brelse(bp);
+  //   return addr;
+  // }
+
+  //panic("bmap: out of range");
 }
 
 // Truncate inode (discard contents).
