@@ -26,7 +26,7 @@ static void writem(int *mb, int fd, int magic)
     return;
   }
 
-  //printf(1,"%d ", (*mb)*SIZE);
+  printf(1, "%d ", (*mb) * SIZE);
   printf(1, ".");
   (*mb)++;
 
@@ -48,7 +48,7 @@ static void readm(int fd, int magic)
   }
 
   read_ = read(fd, buf, SIZE);
-  //printf(1,"read %d bytes\n",read_);
+  printf(1, "read %d bytes\n", read_);
   printf(1, ".");
   if (read_ < 0)
   {
