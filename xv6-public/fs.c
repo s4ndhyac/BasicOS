@@ -410,7 +410,8 @@ bmap(struct inode *ip, uint bn)
     is_new = 0;
   }
 
-  for (int i = 1; i < indirect_bno; i++)
+  int i;
+  for (i = 1; i < indirect_bno; i++)
   {
     if ((addr = a[NINDIRECT - 1]) == 0)
     {
