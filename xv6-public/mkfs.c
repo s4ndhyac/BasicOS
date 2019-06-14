@@ -268,10 +268,10 @@ void iappend(uint inum, void *xp, int n)
     //fbn -> block number
     fbn = off / BSIZE;
     int indirect_bno = 0;
-    while (fbn > NINDIRECT - 1)
+    while (fbn >= NINDIRECT - 1)
     {
       indirect_bno++;
-      fbn -= NINDIRECT;
+      fbn -= (NINDIRECT - 1);
     }
 
     int is_new = 0;
@@ -290,7 +290,7 @@ void iappend(uint inum, void *xp, int n)
     }
 
     int i;
-    for (i = 1; i < indirect_bno; i++)
+    for (i = 1; i <= indirect_bno; i++)
     {
       if (indirect[NINDIRECT - 1] == 0)
       {

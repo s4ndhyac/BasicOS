@@ -390,10 +390,10 @@ bmap(struct inode *ip, uint bn)
   //set the [127] ptr of each newly allocted indirect block to 0
 
   int indirect_bno = 0;
-  while (bn > NINDIRECT - 1)
+  while (bn >= NINDIRECT - 1)
   {
     indirect_bno++;
-    bn -= NINDIRECT;
+    bn -= (NINDIRECT - 1);
   }
 
   int is_new = 0;
@@ -411,7 +411,7 @@ bmap(struct inode *ip, uint bn)
   }
 
   int i;
-  for (i = 1; i < indirect_bno; i++)
+  for (i = 1; i <= indirect_bno; i++)
   {
     if ((addr = a[NINDIRECT - 1]) == 0)
     {
