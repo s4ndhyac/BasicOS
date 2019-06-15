@@ -267,7 +267,7 @@ void iappend(uint inum, void *xp, int n)
   {
     //fbn -> block number
     fbn = off / BSIZE;
-    int indirect_bno = 1;
+    int indirect_bno = 0;
     while (fbn >= NINDIRECT - 1)
     {
       indirect_bno++;
@@ -275,32 +275,26 @@ void iappend(uint inum, void *xp, int n)
     }
 
     int is_new = 0;
+    if (indirect_bno == 0 && xint(din.addrs[0]) == 0)
+    {
+      din.addrs[0] = xint(freeblock++);
+      is_new = 1;
+    }
+    last_bno = xint(din.addrs[0]);
+    rsect(last_bno, (char *)indirect);
+
     int i;
     for (i = 1; i <= indirect_bno; i++)
     {
-      if (i == 1)
+      if (indirect[NINDIRECT - 1] == 0)
       {
-        if (indirect_bno == 1 && xint(din.addrs[0]) == 0)
-        {
-          din.addrs[0] = xint(freeblock++);
-          is_new = 1;
-        }
-        rsect(xint(din.addrs[0]), (char *)indirect);
+        indirect[NINDIRECT - 1] = xint(freeblock++);
+        is_new = 1;
+        wsect(last_bno, (char *)indirect);
       }
-      else
-      {
-        if (indirect[NINDIRECT - 1] == 0)
-        {
-          indirect[NINDIRECT - 1] = xint(freeblock++);
-          is_new = 1;
-          if (i == 2)
-            wsect(xint(din.addrs[0]), (char *)indirect);
-          else
-            wsect(last_bno, (char *)indirect);
-        }
-        last_bno = xint(indirect[NINDIRECT - 1]);
-        rsect(last_bno, (char *)indirect);
-      }
+      last_bno = xint(indirect[NINDIRECT - 1]);
+      rsect(last_bno, (char *)indirect);
+
       if (is_new)
       {
         indirect[NINDIRECT - 1] = 0;
@@ -311,10 +305,7 @@ void iappend(uint inum, void *xp, int n)
     if (indirect[fbn] == 0)
     {
       indirect[fbn] = xint(freeblock++);
-      if (indirect_bno == 1)
-        wsect(xint(din.addrs[0]), (char *)indirect);
-      else
-        wsect(last_bno, (char *)indirect);
+      wsect(last_bno, (char *)indirect);
     }
 
     x = xint(indirect[fbn]);
@@ -353,14 +344,4 @@ void iappend(uint inum, void *xp, int n)
   //     }
   //     x = xint(indirect[fbn - NDIRECT]);
   //   }
-  //   n1 = min(n, (fbn + 1) * BSIZE - off);
-  //   rsect(x, buf);
-  //   bcopy(p, buf + off - (fbn * BSIZE), n1);
-  //   wsect(x, buf);
-  //   n -= n1;
-  //   off += n1;
-  //   p += n1;
-  // }
-  // din.size = xint(off);
-  // winode(inum, &din);
 }
