@@ -267,7 +267,7 @@ void iappend(uint inum, void *xp, int n)
   {
     //fbn -> block number
     fbn = off / BSIZE;
-    int indirect_bno = 0;
+    int indirect_bno = 1;
     while (fbn >= NINDIRECT - 1)
     {
       indirect_bno++;
@@ -276,11 +276,11 @@ void iappend(uint inum, void *xp, int n)
 
     int is_new = 0;
     int i;
-    for (i = 0; i <= indirect_bno; i++)
+    for (i = 1; i <= indirect_bno; i++)
     {
-      if (i == 0)
+      if (i == 1)
       {
-        if (indirect_bno == 0 && xint(din.addrs[0]) == 0)
+        if (indirect_bno == 1 && xint(din.addrs[0]) == 0)
         {
           din.addrs[0] = xint(freeblock++);
           is_new = 1;
@@ -305,7 +305,7 @@ void iappend(uint inum, void *xp, int n)
       }
     }
 
-    if (indirect[fbn] == 0)
+    if (indirect[fbn] == 1)
     {
       indirect[fbn] = xint(freeblock++);
       wsect(last_bno, (char *)indirect);
