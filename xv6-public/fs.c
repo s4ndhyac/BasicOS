@@ -408,16 +408,14 @@ bmap(struct inode *ip, uint bn)
         is_new = 1;
       }
     }
-    else
+    else if ((addr = a[NINDIRECT - 1]) == 0)
     {
-      if ((addr = a[NINDIRECT - 1]) == 0)
-      {
-        a[NINDIRECT - 1] = addr = balloc(ip->dev);
-        is_new = 1;
-      }
+      a[NINDIRECT - 1] = addr = balloc(ip->dev);
+      is_new = 1;
       log_write(bp);
-      brelse(bp);
     }
+    if (i >= 2)
+      brelse(bp);
     bp = bread(ip->dev, addr);
     a = (uint *)bp->data;
     if (is_new)
