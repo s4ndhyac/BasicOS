@@ -397,30 +397,27 @@ bmap(struct inode *ip, uint bn)
   }
 
   int is_new = 0;
-  if ((addr = ip->addrs[0]) == 0)
-  {
-    ip->addrs[0] = addr = balloc(ip->dev);
-    is_new = 1;
-  }
-  bp = bread(ip->dev, addr);
-  a = (uint *)bp->data;
-  if (is_new)
-  {
-    a[NINDIRECT - 1] = 0;
-    is_new = 0;
-  }
-
   int i;
-  for (i = 1; i <= indirect_bno; i++)
+  for (i = 0; i <= indirect_bno; i++)
   {
-    if ((addr = a[NINDIRECT - 1]) == 0)
+    if (i == 0)
     {
-      a[NINDIRECT - 1] = addr = balloc(ip->dev);
-      is_new = 1;
+      if ((addr = ip->addrs[0]) == 0)
+      {
+        ip->addrs[0] = addr = balloc(ip->dev);
+        is_new = 1;
+      }
     }
-    log_write(bp);
-    brelse(bp);
-
+    else
+    {
+      if ((addr = a[NINDIRECT - 1]) == 0)
+      {
+        a[NINDIRECT - 1] = addr = balloc(ip->dev);
+        is_new = 1;
+      }
+      log_write(bp);
+      brelse(bp);
+    }
     bp = bread(ip->dev, addr);
     a = (uint *)bp->data;
     if (is_new)
