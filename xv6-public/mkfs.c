@@ -285,7 +285,7 @@ void iappend(uint inum, void *xp, int n)
           din.addrs[0] = xint(freeblock++);
           is_new = 1;
         }
-        last_bno = xint(din.addrs[0]);
+        rsect(xint(din.addrs[0]), (char *)indirect);
       }
       else
       {
@@ -293,11 +293,14 @@ void iappend(uint inum, void *xp, int n)
         {
           indirect[NINDIRECT - 1] = xint(freeblock++);
           is_new = 1;
-          wsect(last_bno, (char *)indirect);
+          if (i == 2)
+            wsect(xint(din.addrs[0]), (char *)indirect);
+          else
+            wsect(last_bno, (char *)indirect);
         }
         last_bno = xint(indirect[NINDIRECT - 1]);
+        rsect(last_bno, (char *)indirect);
       }
-      rsect(last_bno, (char *)indirect);
       if (is_new)
       {
         indirect[NINDIRECT - 1] = 0;
@@ -305,10 +308,13 @@ void iappend(uint inum, void *xp, int n)
       }
     }
 
-    if (indirect[fbn] == 1)
+    if (indirect[fbn] == 0)
     {
       indirect[fbn] = xint(freeblock++);
-      wsect(last_bno, (char *)indirect);
+      if (indirect_bno == 1)
+        wsect(xint(din.addrs[0]), (char *)indirect);
+      else
+        wsect(last_bno, (char *)indirect);
     }
 
     x = xint(indirect[fbn]);
