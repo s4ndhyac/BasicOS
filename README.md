@@ -6,5 +6,5 @@
   - support multi-threading [thread]
   - mutex locking [thread]
   - conditional variables [extracredit_cond_var]
-  - semaphores [extracredit_sem]
+  - semaphores [extracredit_semaphore]
   - linked list file-addressing [big]
