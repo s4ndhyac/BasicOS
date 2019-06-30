@@ -69,6 +69,7 @@ char *kalloc(void);
 void kfree(char *);
 void kinit1(void *, void *);
 void kinit2(void *, void *);
+int kcount(void);
 
 // kbd.c
 void kbdintr(void);
@@ -193,6 +194,8 @@ void switchuvm(struct proc *);
 void switchkvm(void);
 int copyout(pde_t *, uint, void *, uint);
 void clearpteu(pde_t *pgdir, char *uva);
+int countkvm(pde_t *pgdir);
+int countuvm(pde_t *pgdir, uint sz);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
