@@ -84,6 +84,21 @@ int sys_uptime(void)
   return xticks;
 }
 
+int sys_memtop(void)
+{
+  int freemem = kcount() * PGSIZE;
+  return freemem;
+}
+
+int sys_getmeminfo(void)
+{
+  int pid, size;
+  char *name;
+  if (argint(0, &pid) < 0 || argstr(1, &name) < 0 || argint(2, &size) < 0)
+    return -1;
+  return getmeminfo(pid, name, size);
+}
+
 int sys_thread_create(void)
 {
   void (*fcn)(void *);

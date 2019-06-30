@@ -69,6 +69,7 @@ char *kalloc(void);
 void kfree(char *);
 void kinit1(void *, void *);
 void kinit2(void *, void *);
+int kcount(void);
 
 // kbd.c
 void kbdintr(void);
@@ -121,6 +122,7 @@ void userinit(void);
 int wait(void);
 void wakeup(void *);
 void yield(void);
+int getmeminfo(int, char *, int);
 int thread_create(void (*fcn)(void *), void *arg, void *stack);
 int thread_join(void);
 void thread_exit(void);

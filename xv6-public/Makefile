@@ -181,6 +181,7 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
+	_mtop\
 	_thread\
 	_extracredit_cond_var\
 	_extracredit_semaphore\
@@ -254,6 +255,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
+	mtop.c\
 	thread.c extracredit_cond_var.c extracredit_semaphore.c\
 	printf.c umalloc.c extracredit_sbrk.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\

@@ -25,3 +25,5 @@
 #define SYS_thread_exit 24
 #define SYS_thread_sleep 25
 #define SYS_thread_wakeup 26
+#define SYS_memtop 27
+#define SYS_getmeminfo 28

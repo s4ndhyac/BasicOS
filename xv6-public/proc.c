@@ -564,6 +564,43 @@ void procdump(void)
   }
 }
 
+int getmeminfo(int pid, char *name, int len)
+{
+  struct proc *p;
+  int mem = 0;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+    {
+      // process name
+      memmove(name, p->name, len);
+
+      // user memory of the process (text, data, guard, stack)
+      mem += PGROUNDUP(p->sz);
+
+      // kernel stack page kstack
+      mem += PGSIZE;
+
+      // page table root page i.e page directory pgdir
+      mem += PGSIZE;
+
+      // N leaf pages i.e page table pages
+      int leafPages = 0;
+      int i;
+      pde_t *pde;
+      for (i = 0; i < NPDENTRIES; i++)
+      {
+        pde = &p->pgdir[i];
+        if (*pde & PTE_P)
+          leafPages++;
+      }
+      mem += (leafPages * PGSIZE);
+      break;
+    }
+  }
+  return mem;
+}
+
 int thread_create(void (*fcn)(void *), void *arg, void *stack)
 {
   int i, pid;
