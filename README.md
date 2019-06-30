@@ -7,4 +7,6 @@
   - mutex locking [thread]
   - conditional variables [extracredit_cond_var]
   - semaphores [extracredit_semaphore]
+  - fixed sbrk dynamic memory allocation function to support multi-threading
+  - TODO: Fix malloc memory allocator to support multi-threading
   - linked list file-addressing [big]
