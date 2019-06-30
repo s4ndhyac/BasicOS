@@ -1,0 +1,19 @@
+Extracredit 1
+
+Q. Writing a large file to disk in xv6 is incredibly slow. It gets slower the fuller the disk gets(hint). 
+There are two ways to speed up writing a file to disk. Explain why when the disk gets fuller writing gets slower-- 
+Explain how you can mitigate this problem. Second, explain the other way to speed up writes and why that works.
+
+A. When writing a large file we need to traverse to the nth block to write the data, for which the bmap function is used. 
+Traversing to the nth block number, is an O(n) linear in time operation, since the first 12 blocks are direct and the last block
+is an indirect block pointer to 128 other blocks. Therefore as the file size increases, and as the disk gets fuller, for each 
+call to bmap we would have to traverse successively longer distance and consequently take more time to traverse and write data.
+We can mitigate this by using a tree data structure instead for the blocks which would result in a logarithmic time complexity 
+O(log n) to traverse to the nth block number.
+
+xv6 splits large file writes into multiple filesystem transactions. xv6 writes few blocks at a time to avoid exceeding 
+the maximum log transaction size. The max variable in the filewrite() function limits the maximum size for each transaction 
+to make sure that it fits into the system log. So the max number of blocks we can write without running out of space 
+in the log is (MAXOPBLOCKS-1-1-2)/2). This acts as a bottleneck. And can be fixed by increasing the maximum log transaction size.
+
+    

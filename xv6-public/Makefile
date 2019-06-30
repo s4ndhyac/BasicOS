@@ -186,6 +186,7 @@ UPROGS=\
 	_extracredit_cond_var\
 	_extracredit_semaphore\
 	_extracredit_sbrk\
+	_big\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -222,7 +223,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 	then echo "-gdb tcp::$(GDBPORT)"; \
 	else echo "-s -p $(GDBPORT)"; fi)
 ifndef CPUS
-CPUS := 2
+CPUS := 1
 endif
 QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
 
@@ -258,6 +259,7 @@ EXTRA=\
 	mtop.c\
 	thread.c extracredit_cond_var.c extracredit_semaphore.c\
 	printf.c umalloc.c extracredit_sbrk.c\
+	big.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 
