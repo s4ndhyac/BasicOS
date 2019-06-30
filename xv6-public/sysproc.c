@@ -84,17 +84,42 @@ int sys_uptime(void)
   return xticks;
 }
 
-int sys_memtop(void)
+int sys_thread_create(void)
 {
-  int freemem = kcount() * PGSIZE;
-  return freemem;
+  void (*fcn)(void *);
+  void *arg;
+  void *stack;
+  if (argptr(0, (void *)&fcn, sizeof(void (*)(void *))) < 0 || argptr(1, (void *)&arg, sizeof(void *)) < 0 || argptr(2, (void *)&stack, sizeof(void *)) < 0)
+    return -1;
+  return thread_create(fcn, arg, stack);
 }
 
-int sys_getmeminfo(void)
+int sys_thread_join(void)
 {
-  int pid, size;
-  char *name;
-  if (argint(0, &pid) < 0 || argstr(1, &name) < 0 || argint(2, &size) < 0)
+  return thread_join();
+}
+
+int sys_thread_exit(void)
+{
+  thread_exit();
+  return 0;
+}
+
+int sys_thread_sleep(void)
+{
+  void *chan;
+  void *lk;
+  if (argptr(0, (void *)&chan, sizeof(void *)) < 0 || argptr(1, (void *)&lk, sizeof(void *)) < 0)
     return -1;
-  return getmeminfo(pid, name, size);
+  thread_sleep(chan, lk);
+  return 0;
+}
+
+int sys_thread_wakeup(void)
+{
+  void *chan;
+  if (argptr(0, (void *)&chan, sizeof(void *)) < 0)
+    return -1;
+  wakeup(chan);
+  return 0;
 }

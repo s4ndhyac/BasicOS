@@ -20,5 +20,8 @@
 #define SYS_link 19
 #define SYS_mkdir 20
 #define SYS_close 21
-#define SYS_memtop 22
-#define SYS_getmeminfo 23
+#define SYS_thread_create 22
+#define SYS_thread_join 23
+#define SYS_thread_exit 24
+#define SYS_thread_sleep 25
+#define SYS_thread_wakeup 26

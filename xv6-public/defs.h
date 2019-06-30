@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct thread_mutex;
 
 // bio.c
 void binit(void);
@@ -68,7 +69,6 @@ char *kalloc(void);
 void kfree(char *);
 void kinit1(void *, void *);
 void kinit2(void *, void *);
-int kcount(void);
 
 // kbd.c
 void kbdintr(void);
@@ -121,7 +121,12 @@ void userinit(void);
 int wait(void);
 void wakeup(void *);
 void yield(void);
-int getmeminfo(int, char *, int);
+int thread_create(void (*fcn)(void *), void *arg, void *stack);
+int thread_join(void);
+void thread_exit(void);
+void mutex_lock(struct thread_mutex *);
+void mutex_unlock(struct thread_mutex *);
+void thread_sleep(void *, void *);
 
 // swtch.S
 void swtch(struct context **, struct context *);

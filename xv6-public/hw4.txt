@@ -1,0 +1,29 @@
+HW Implementations:
+- Thread syscalls + spinlocks + mutexes -> thread.c
+
+Extracredit implementations:
+
+- Conditional Variables 
+  -> thread_lock_impl.h
+    - created thread_sleep and thread_wakeup syscalls
+    - implementations of struct q, thread_cond_init, thread_cond_wait, thread_cond_signal
+  -> extracredit_cond_var.c
+    - small test program that sends a message in a char buffer to the producer queue 
+      which signals the reciever queue on receiving the message.
+    - the receiver queue waits until there is a message in the queue and processes it once available
+
+- Semaphores 
+  -> thread_lock_impl.h
+    - implementations of sem_init, sem_wait, sem_post
+  -> extracredit_semaphore.c
+    - small test program that creates a small queue of N=5 values
+    - prod_work -> producer adds 5 values to the queue, counting semaphore increases
+    - cons_work -> consumer dequeues values while there are elements in the queue
+
+- Fix sbrk and malloc
+  -> proc.c
+    - Fixed only sbrk - growproc function
+    - malloc not fixed
+  -> extracredit_sbrk.c
+    - small test program that creates 2 threads and calls sbrk twice
+    - each sbrk requests for the amount of memory specified in the balance->amount variable

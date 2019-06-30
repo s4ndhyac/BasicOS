@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "thread_mutex.h"
 
 struct
 {
@@ -156,13 +157,14 @@ void userinit(void)
 }
 
 // Grow current process's memory by n bytes.
-// Return 0 on success, -1 on failure.
+// Return oldsz on success, -1 on failure.
 int growproc(int n)
 {
-  uint sz;
+  uint sz, oldsz;
   struct proc *curproc = myproc();
 
   sz = curproc->sz;
+  oldsz = sz;
   if (n > 0)
   {
     if ((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
@@ -170,12 +172,31 @@ int growproc(int n)
   }
   else if (n < 0)
   {
+    // do not deallocate shared mem of parent if current proc is thread
+    if (curproc->isthread)
+      return -1;
+
     if ((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
+
   curproc->sz = sz;
+
+  // if current process is thread then update size of parent in current process
+  if (curproc->isthread)
+    curproc->parent->sz = sz;
+  // if current process is thread then update size of parent and any child threads
+  struct proc *p;
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->isthread && (p->parent == curproc->parent || p->parent == curproc))
+      p->sz = curproc->sz;
+  }
+  release(&ptable.lock);
+
   switchuvm(curproc);
-  return 0;
+  return oldsz;
 }
 
 // Create a new process copying p as the parent.
@@ -290,7 +311,7 @@ int wait(void)
     havekids = 0;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-      if (p->parent != curproc)
+      if (p->isthread != 0 || p->parent != curproc)
         continue;
       havekids = 1;
       if (p->state == ZOMBIE)
@@ -543,39 +564,209 @@ void procdump(void)
   }
 }
 
-int getmeminfo(int pid, char *name, int len)
+int thread_create(void (*fcn)(void *), void *arg, void *stack)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *curproc = myproc();
+
+  // Allocate process -> allocate kernel stack page and find a UNUSED process, set it to EMBRYO state
+  if ((np = allocproc()) == 0)
+  {
+    return -1;
+  }
+
+  // Share address space instead of copying
+  np->pgdir = curproc->pgdir;
+
+  // copy file descriptors in same manner as fork
+  for (i = 0; i < NOFILE; i++)
+    if (curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+
+  // Copy process state from proc.
+  np->sz = curproc->sz;
+  np->parent = curproc;
+  np->cwd = idup(curproc->cwd);
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+
+  *np->tf = *curproc->tf;
+  // Clear %eax so that thread_create returns 0 in the child.
+  np->tf->eax = 0;
+  // new thread execution starts at fcn
+  np->tf->eip = (int)fcn;
+  // use stack as user stack
+  // esp points to the top of the stack
+  // stack is one page in size
+  np->tf->esp = (int)stack + PGSIZE;
+  // pass arg onto stack as argument
+  np->tf->esp -= 4;
+  *((int *)(np->tf->esp)) = (int)arg;
+  // use fake return PC -> 0xffffffff
+  np->tf->esp -= 4;
+  *((int *)(np->tf->esp)) = 0xffffffff;
+
+  // set isthread non-zero
+  np->isthread = 1;
+
+  // return PID of new thread to parent
+  pid = np->pid;
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+  return pid;
+}
+
+int thread_join(void)
 {
   struct proc *p;
-  int mem = 0;
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  int havekids, pid;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for (;;)
   {
-    if (p->pid == pid)
+    // Scan through table looking for exited threads
+    havekids = 0;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-      // process name
-      memmove(name, p->name, len);
-
-      // user memory of the process (text, data, guard, stack)
-      mem += PGROUNDUP(p->sz);
-
-      // kernel stack page kstack
-      mem += PGSIZE;
-
-      // page table root page i.e page directory pgdir
-      mem += PGSIZE;
-
-      // N leaf pages i.e page table pages
-      int leafPages = 0;
-      int i;
-      pde_t *pde;
-      for (i = 0; i < NPDENTRIES; i++)
+      if (p->isthread == 0 || p->parent != curproc)
+        continue;
+      havekids = 1;
+      if (p->state == ZOMBIE)
       {
-        pde = &p->pgdir[i];
-        if (*pde & PTE_P)
-          leafPages++;
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        // Not freeing shared address space of thread
+        //freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        return pid;
       }
-      mem += (leafPages * PGSIZE);
-      break;
+    }
+
+    // No point waiting if we don't have any children.
+    if (!havekids || curproc->killed)
+    {
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock); //DOC: wait-sleep
+  }
+}
+
+// Exit the current thread.  Does not return.
+// An exited thread remains in the zombie state
+// until its parent calls wait() to find out it exited.
+void thread_exit(void)
+{
+  struct proc *curproc = myproc();
+  struct proc *p;
+  int fd;
+
+  if (curproc == initproc)
+    panic("init exiting");
+
+  // Close all open files.
+  for (fd = 0; fd < NOFILE; fd++)
+  {
+    if (curproc->ofile[fd])
+    {
+      fileclose(curproc->ofile[fd]);
+      curproc->ofile[fd] = 0;
     }
   }
-  return mem;
+
+  begin_op();
+  iput(curproc->cwd);
+  end_op();
+  curproc->cwd = 0;
+
+  acquire(&ptable.lock);
+
+  // Parent might be sleeping in wait().
+  wakeup1(curproc->parent);
+
+  // Pass abandoned children to init.
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->parent == curproc)
+    {
+      p->parent = initproc;
+      if (p->state == ZOMBIE)
+        wakeup1(initproc);
+    }
+  }
+
+  // Jump into the scheduler, never to return.
+  curproc->state = ZOMBIE;
+  sched();
+  panic("zombie exit");
+}
+
+void mutex_lock(struct thread_mutex *lk)
+{
+  while (xchg(&lk->locked, 1) != 0)
+    yield();
+  __sync_synchronize();
+  return;
+}
+
+void mutex_unlock(struct thread_mutex *lk)
+{
+  __sync_synchronize();
+  asm volatile("movl $0, %0"
+               : "+m"(lk->locked)
+               :);
+  return;
+}
+
+// similar to existing sleep method
+// except uses a mutex lock instead of spinlock
+// Atomically release lock and sleep on chan.
+// Reacquires lock when awakened.
+void thread_sleep(void *chan, void *lk)
+{
+  struct proc *p = myproc();
+
+  if (p == 0)
+    panic("sleep");
+
+  if (lk == 0)
+    panic("sleep without lk");
+
+  // Must acquire ptable.lock in order to
+  // change p->state and then call sched.
+  // Once we hold ptable.lock, we can be
+  // guaranteed that we won't miss any wakeup
+  // (wakeup runs with ptable.lock locked),
+  // so it's okay to release lk.
+  if (lk != &ptable.lock)
+  {                        //DOC: sleeplock0
+    acquire(&ptable.lock); //DOC: sleeplock1
+    mutex_unlock(lk);
+  }
+  // Go to sleep.
+  p->chan = chan;
+  p->state = SLEEPING;
+
+  sched();
+
+  // Tidy up.
+  p->chan = 0;
+
+  // Reacquire original lock.
+  if (lk != &ptable.lock)
+  { //DOC: sleeplock2
+    release(&ptable.lock);
+    mutex_lock(lk);
+  }
 }
